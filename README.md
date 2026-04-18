@@ -1,8 +1,34 @@
-# Drone surveillance
+# Safety Drone Applicaiton
 
-## Description
-The main goal of this project is to create a surveillance drone that will fly on a predefined path (you can imagine something like flying around a house) and using the camera, the drone will detect potentially dangerous objects or/and people. When such an object is detected, the drone reports what kind of object it was. One thing that might be interesting to implement is to make the drone circle around the object in order to get a better look and make sure it identified the object accurately. In case of a moving object or person, the drone will follow them while also reporting back.
+A Python application using PySide6 for GUI and YOLO for object detection to find and map dangerous object in warehouses
 
-## Stages
-1) Fly on a predefined path and detect objects/people and report what it classifed 
-2) Circle around objects or/and follow moving objects (might be too difficult, but it would be super cool)
+# Prerequisites
+
+Make sure you have the following installed:
+
+- Python >= 3.10  
+- Pip  
+- UV (recommended package manager)
+
+## Install UV
+
+```
+pip install uv
+```
+
+## Install dependencies
+```
+uv sync
+```
+
+## Run the main app
+```
+uv run src/main.py
+```
+
+## Run jupyter notebooks
+```
+uv run jupyter notebook
+```
+and select the kernel
+
