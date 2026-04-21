@@ -34,64 +34,55 @@ class Drone:
         self._worker = threading.Thread(target=fn, args=args, daemon=True)
         self._worker.start()
 
-    def connect(self):
-        # TODO Log action
 
+    def connect(self):
         self._run(self.drone.connect)
 
-    def reboot(self):
-        # TODO Log action
 
+    def reboot(self):
         self._run(self.drone.reboot)
 
-    def takeoff(self):
-        # TODO Log action
 
+    def takeoff(self):
         self._run(self.drone.takeoff)
     
+
     def land(self):
-        # TODO Log action
-
         self._run(self.drone.land)
-    
-    def startStream(self):
-        # TODO Log action
 
+
+    def startStream(self):
         self._run(self.drone.streamon)
 
-    def stopStream(self):
-        # TODO Log action
 
+    def stopStream(self):
         self._run(self.drone.streamoff)
 
-    def emergency(self):
-        # TODO Log action
 
+    def emergency(self):
         self._run(self.drone.emergency)
+
 
     def move(self, dir: DIRECTION, x: int):
         """Fly x cm in direction dir."""
-        # TODO Log action
 
         self._run(lambda: self.drone.move(dir, x))
 
-    def moveToXYZRelativeToCurrentPosition(self, x: int, y: int, z: int, speed: SPEED):
-        #TODO Log action
 
+    def moveToXYZRelativeToCurrentPosition(self, x: int, y: int, z: int, speed: SPEED):
         self._run(lambda: self.drone.go_xyz_speed(x, y, z, speed))
 
-    def moveToXYZRelativeToPad(self, x: int, y: int, z: int, speed: SPEED, pad: int):
-        # TODO Log action
 
+    def moveToXYZRelativeToPad(self, x: int, y: int, z: int, speed: SPEED, pad: int):
         self._run(lambda: self.drone.go_xyz_speed_mid(x, y, z, speed, pad))
 
-    def rotate(self, dir: ROTATION_DIRECTION, angle_deg: int):
-        # TODO Log action
 
+    def rotate(self, dir: ROTATION_DIRECTION, angle_deg: int):
         if dir is ROTATION_DIRECTION.CLOCKWISE:
             self._run(lambda: self.drone.rotate_clockwise(angle_deg))
         elif dir is ROTATION_DIRECTION.COUNTERCLOCKWISE:
             self._run(lambda: self.drone.rotate_counter_clockwise(angle_deg))
+
 
     def circleObject(self, radius_cm: int, speed: SPEED, steps: int = 24):
         """Circles around the object 
@@ -111,19 +102,22 @@ class Drone:
         self._run(_circle)    
 
     def startSequence(self):
-        # TODO
         pass
 
-    def setSpeed(self, speed: SPEED):
-        # TODO Log action
 
+    def setSpeed(self, speed: SPEED):
         self._run(lambda: self.drone.set_speed(speed))
 
 
     def getBattery(self):
-        # TODO Log action
-
         return self.drone.get_battery()
+    
+    def getMissionpadXYZ(self):
+        x = self.drone.get_mission_pad_distance_x()
+        y = self.get_mission_pad_distance_y()
+        z = self.get_mission_pad_distance_z()
+
+        return x, y, z
     
     def getFrame(self):
         return self.drone.get_frame_read()
