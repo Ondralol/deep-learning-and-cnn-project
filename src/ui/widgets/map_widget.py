@@ -1,6 +1,7 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QLabel, QSizePolicy, QVBoxLayout, QWidget
 
+from ui.elements.title import Title
 
 class MapWidget(QWidget):
     """Map showing detected objects and their positions (using heatmap)."""
@@ -11,7 +12,7 @@ class MapWidget(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        title = QLabel("Map showing the detected objects")
+        title = Title(self, "Map showing the detected objects")
         layout.addWidget(title)
 
         self.map_label = QLabel("No map data")

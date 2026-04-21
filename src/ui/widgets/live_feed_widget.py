@@ -1,6 +1,7 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QLabel, QSizePolicy, QVBoxLayout, QWidget
 
+from ui.elements.title import Title
 
 class LiveFeedWidget(QWidget):
     """Live video feed with object detection overlay."""
@@ -11,8 +12,8 @@ class LiveFeedWidget(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        title = QLabel("Live video feed with object detection")
-        layout.addWidget(title)
+        title = Title(self, "Live video feed with object detection")
+        layout.addWidget(title, alignment=Qt.AlignCenter)
 
         self.feed_label = QLabel("No feed")
         self.feed_label.setAlignment(Qt.AlignmentFlag.AlignCenter)

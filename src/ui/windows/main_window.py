@@ -29,7 +29,7 @@ class MainWindow(QMainWindow):
 
         # Add live feed
         self.live_feed = LiveFeedWidget()
-        horizontalLayout.addWidget(self.live_feed)
+        horizontalLayout.addWidget(self.live_feed, stretch=2)
 
         # Create vertical layout for map and log
         verticalLayoutMapAndLog = QVBoxLayout()
@@ -43,7 +43,7 @@ class MainWindow(QMainWindow):
         verticalLayoutMapAndLog.addWidget(self.object_log)
 
         # Add layouts
-        horizontalLayout.addLayout(verticalLayoutMapAndLog)
+        horizontalLayout.addLayout(verticalLayoutMapAndLog, stretch=1)
         mainVerticalLayout.addLayout(horizontalLayout)
 
         root = QWidget()

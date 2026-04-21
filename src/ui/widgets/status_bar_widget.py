@@ -1,8 +1,9 @@
 
 from PySide6.QtCore import QSize
-from PySide6.QtWidgets import QFrame, QHBoxLayout, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QFrame, QHBoxLayout, QVBoxLayout, QWidget, QLabel
 
 from ui.elements.generic_button import GenericButton
+from ui.elements.generic_label import GenericLabel
 from ui.elements.record_button import RecordButton
 from ui.widgets.activity_indicator_widget import ActivityIndicatorWidget
 from ui.widgets.battery_widget import BatteryWidget
@@ -32,6 +33,7 @@ class StatusBarWidget(QFrame):
         horizontalLayout.addWidget(self.buttonDroneConnect)
 
         # Add activity dot
+        horizontalLayout.addWidget(GenericLabel(self, "Drone"))                                                                                                                              
         horizontalLayout.addWidget(ActivityIndicatorWidget(self, 500))
 
         # Extra controls button to open popup window - to control drone
