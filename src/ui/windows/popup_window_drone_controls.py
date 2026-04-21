@@ -8,7 +8,7 @@ from ui.elements.dropdown import Dropdown
 from ui.elements.spinbox import Spinbox
 
 
-POPUP_WIDTH = 1600
+POPUP_WIDTH = 1000
 POPUP_HEIGHT = 900
 
 STYLE_SHEET_POPUP_DIALOG = """

@@ -2,9 +2,10 @@ from PySide6.QtCore import QSize, Qt, QTimer
 from PySide6.QtWidgets import QDialog, QHBoxLayout, QVBoxLayout
 
 from communication.dji_api import Drone
+from ui.elements.debug_widget import DebugWidget
 
-POPUP_WIDTH = 1600
-POPUP_HEIGHT = 900
+POPUP_WIDTH = 650
+POPUP_HEIGHT = 650
 
 STYLE_SHEET_POPUP_DIALOG = """
     QDialog {
@@ -35,7 +36,23 @@ class PopupWindowDroneDebug(QDialog):
         # Main layout with proper margins
         mainLayoutVertical = QVBoxLayout()
         mainLayoutVertical.setContentsMargins(50, 50, 50, 50)
-        mainLayoutVertical.setSpacing(10)
+        mainLayoutVertical.setSpacing(50)
+
+        # Current pos relative to pad debuf
+        self.current_pos = DebugWidget(self, "Pos relative to mission pad (XYZ)")
+        mainLayoutVertical.addWidget(self.current_pos)
+
+        # Current height
+        self.current_height = DebugWidget(self, "Height")
+        mainLayoutVertical.addWidget(self.current_height)
+
+        # Distance tof (height)
+        self.current_distance_tof = DebugWidget(self, "Distance TOF")
+        mainLayoutVertical.addWidget(self.current_distance_tof)
+
+        mainLayoutVertical.addStretch()
+
+        self.setLayout(mainLayoutVertical)
 
     def showEvent(self, event):
         super().showEvent(event)

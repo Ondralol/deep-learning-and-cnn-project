@@ -39,8 +39,9 @@ class StatusBarWidget(QFrame):
         horizontalLayout.addWidget(self.buttonDroneConnect)
 
         # Add activity dot
-        horizontalLayout.addWidget(GenericLabel(self, "Drone"))                                                                                                                              
-        horizontalLayout.addWidget(ActivityIndicatorWidget(self, 500))
+        horizontalLayout.addWidget(GenericLabel(self, "Drone"))   
+        self.activityIndicator = ActivityIndicatorWidget(self, 1000)                                                                                                                           
+        horizontalLayout.addWidget(self.activityIndicator)
 
         # Drone controls button to open popup window - to control drone
         self.buttonDroneControls = GenericButton(self, "Drone Controls")

@@ -1,4 +1,5 @@
 from PySide6.QtWidgets import QHBoxLayout, QMainWindow, QVBoxLayout, QWidget
+from PySide6.QtCore import QTimer
 
 from ui.widgets.live_feed_widget import LiveFeedWidget
 from ui.widgets.map_widget import MapWidget
@@ -7,6 +8,7 @@ from ui.widgets.status_bar_widget import StatusBarWidget
 
 from communication.dji_api import Drone
 
+POLL_TIME_MS = 500
 
 class MainWindow(QMainWindow):
     """Main application window."""
@@ -20,6 +22,14 @@ class MainWindow(QMainWindow):
         self.drone = Drone()
 
         self.buildUI()
+
+
+        # Timer to fetch drone data
+        self.poll_timer = QTimer()
+        self.poll_timer.setInterval(POLL_TIME_MS)
+        self.poll_timer.timeout.connect(self._poll)
+        self.poll_timer.start()
+
 
     def buildUI(self):
 
@@ -55,6 +65,27 @@ class MainWindow(QMainWindow):
         root = QWidget()
         root.setLayout(mainVerticalLayout)
         self.setCentralWidget(root)
+
+    def _poll(self):
+        """Fetch drone data, such as battery, position, etc."""
+        
+        battery = self.drone.getBattery()
+        if battery is not None:
+            self.statusBar.battery.setLevel(battery)
+            self.statusBar.activityIndicator.activityDetected()
+        
+        cur_pos = self.drone.getMissionpadXYZ()
+        if cur_pos is not None:
+            self.statusBar.droneDebugPopup.current_pos.set_value(f"({cur_pos[0], cur_pos[1], cur_pos[2]})")
+
+        height = self.drone.getHeight()
+        if height is not None:
+            self.statusBar.droneDebugPopup.current_height.set_value(height, "cm")
+
+        tof = self.drone.getDistanceTof()
+        if tof is not None:
+            self.statusBar.droneDebugPopup.current_distance_tof.set_value(tof, "cm")
+
 
     def closeEvent(self, event):
         # TODO: disconnect drone, stop recording

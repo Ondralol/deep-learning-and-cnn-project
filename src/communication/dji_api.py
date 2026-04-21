@@ -120,6 +120,22 @@ class Drone:
             return self.drone.get_battery()
         except:
             return None
+        
+
+    def getHeight(self):
+        try:
+            return self.drone.get_height()
+        except:
+            return None
+        
+
+    def getDistanceTof(self):
+        "Another measurement for height"
+        try:
+            return self.drone.get_distance_tof()
+        except:
+            return None
+
     
 
     def getMissionpadXYZ(self):
