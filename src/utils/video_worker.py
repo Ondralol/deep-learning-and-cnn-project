@@ -12,7 +12,7 @@ class MODEL_TYPE(StrEnum):
 
 MODEL_PATH_PREFIX = "models/"             
 
-INFERENCE_EVERY_N = 3 # Only run inference every nth frame
+INFERENCE_EVERY_N = 1 # Only run inference every nth frame
 CONFIRM_INFERENCE_M = 3 # Only confirm inference after n consetutive inferences 
 BOX_EXPIRE_FRAMES = 3 # Old boxes expire after this number of frames
 CONFIDENCE_RATE = 0.45
@@ -66,11 +66,14 @@ class VideoWorker(QThread):
                 # TODO Consecutive detection here
 
                 # TODO Call inspection
-                #if len(results[0].boxes) > 0:                                                                                                                 
-                #    self.on_detection(results[0])
+                if len(results[0].boxes) > 0:                                                                                                                 
+                    self.on_detection(results[0])
 
             if last_boxes is not None and (frame_count - last_inference_frame) < BOX_EXPIRE_FRAMES:
-                display_frame = last_boxes.plot(img=frame.copy())
+                try:
+                    display_frame = last_boxes.plot(img=frame.copy())
+                except:
+                    display_frame = frame
             else:
                 display_frame = frame
 
