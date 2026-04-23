@@ -84,7 +84,7 @@ class PopupWindowDroneControls(QDialog):
         self.mainLayoutVertical.addLayout(self._buildMove())
         self.mainLayoutVertical.addLayout(self._buildRotate())
         self.mainLayoutVertical.addLayout(self.__buildMoveToXYZRelativeToCurrentPosition())
-        self.mainLayoutVertical.addLayout(self._buildCircle())
+        self.mainLayoutVertical.addLayout(self._buildInspect())
         
 
     def _buildButtonPad(self):
@@ -98,7 +98,7 @@ class PopupWindowDroneControls(QDialog):
     def _buildMove(self):
         horizontalLayout = QHBoxLayout()
         self.dropdownMove = Dropdown(self, "Direction", DIRECTION)
-        self.spinboxMove = Spinbox(self, "Distance", " cm", 20, 500, 10, 1, 0)
+        self.spinboxMove = Spinbox(self, "Distance", " cm", 10, 500, 25, 1, 0)
         self.buttonMove = GenericButton(self, "Move")
         self.buttonMove.clicked.connect(lambda: self.drone.move(self.dropdownMove.getCurrentEnum(), self.spinboxMove.getValue()))
 
@@ -138,19 +138,11 @@ class PopupWindowDroneControls(QDialog):
 
         return horizontalLayout
 
-    def _buildCircle(self):
+    def _buildInspect(self):
         horizontalLayout = QHBoxLayout()
-        self.dropdownCircle = Dropdown(self, "Speed", SPEED)
-        self.spinboxCircleRadius= Spinbox(self, "Radius in cm", "", 10, 500, 10, 1, 0)
-        self.spinboxCircleSteps = Spinbox(self, "Steps", "", 0, 100, 5, 1, 0)
         self.buttonCircle = GenericButton(self, "Inspect")
-        self.buttonCircle.clicked.connect(lambda: self.drone.inspectObject(self.spinboxCircleRadius.getValue(),
-                                                                                        self.dropdownCircle.getCurrentEnum(),
-                                                                                        self.spinboxCircleSteps.getValue()))
+        self.buttonCircle.clicked.connect(lambda: self.drone.inspectObject())
         horizontalLayout.addWidget(self.buttonCircle)
-        horizontalLayout.addWidget(self.spinboxCircleRadius)
-        horizontalLayout.addWidget(self.spinboxCircleSteps)
-        horizontalLayout.addWidget(self.dropdownCircle)
 
         return horizontalLayout
 
