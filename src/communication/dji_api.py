@@ -2,6 +2,7 @@ import math
 from djitellopy import tello
 from enum import Enum, IntEnum, StrEnum
 import threading
+ 
 
 class DIRECTION(StrEnum):
     UP = "up"
@@ -92,7 +93,7 @@ class Drone:
             self._run(lambda: self.drone.rotate_counter_clockwise(angle_deg))
 
 
-    def inspectObject(self, radius_cm: int = 50, steps: int = 5, speed: SPEED = SPEED.SLOW):
+    def inspectObject(self, radius_cm: int = 50, steps: int = 5, speed: SPEED = SPEED.SLOW, on_done = None):
         """Inspect an object by sweeping 45° left then 45° right around it.
 
         Drone flies around the object at a fixed radius, rotating to keep
@@ -126,6 +127,9 @@ class Drone:
             _arc(45, direction=-1)  # return to center
             _arc(45, direction=-1)  # right arc
             _arc(45, direction=1)   # return to center
+
+            if on_done:
+                on_done()
 
         self._run(_inspect)
 

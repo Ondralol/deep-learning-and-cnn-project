@@ -12,6 +12,10 @@ class MODEL_TYPE(StrEnum):
 
 MODEL_PATH_PREFIX = "models/"             
 
+INFERENCE_EVERY_N = 3 # Only run inference every nth frame
+CONFIRM_INFERENCE_M = 3 # Only confirm inference after n consetutive inferences 
+BOX_EXPIRE_FRAMES = 3 # Old boxes expire after this number of frames
+CONFIDENCE_RATE = 0.25
 
 class VideoWorker(QThread):                                                                                                                                            
     frame_ready = Signal(np.ndarray)
@@ -22,6 +26,9 @@ class VideoWorker(QThread):
         self.model_type = model_type                                                                                                                                       
         self.model_loaded = False
         self.running = True
+
+        # If there is currently running inspection
+        self.currently_running_inspection = False
     
     def _loadModel(self):
         from ultralytics import YOLO  
@@ -41,17 +48,49 @@ class VideoWorker(QThread):
         except:
             return
         
+        last_boxes = None
+        last_inference_frame = 0
+        consecutive_count = 0
+        frame_count = 0
+
         while self.running:                                                                                                                                              
             frame = frame_read.frame                                                                                                                                   
             if frame is None:
                 continue
-            results = self.model(frame, verbose=False)                                                                                                                   
-            annotated = results[0].plot()  # draws boxes + labels
-            self.frame_ready.emit(annotated)    
+
+            if frame_count % INFERENCE_EVERY_N == 0:
+                results = self.model(frame, verbose=False, conf=CONFIDENCE_RATE)                                                                                                                   
+                last_boxes = results[0]
+                last_inference_frame = frame_count
+
+                # TODO Consecutive detection here
+
+                # TODO Call inspection
+                #if len(results[0].boxes) > 0:                                                                                                                 
+                #    self.on_detection(results[0])
+
+            if last_boxes is not None and (frame_count - last_inference_frame) < BOX_EXPIRE_FRAMES:
+                display_frame = last_boxes.plot(img=frame.copy())
+            else:
+                display_frame = frame
+
+            self.frame_ready.emit(display_frame)    
             # Might neeed to add like a time sleep or something since
             # this runs in the loop and might poll the same frame multiple times
-            # idk if that's an issue (probably not)                                                                                                                         
-                                                                                                                                                                        
+            # idk if that's an issue (probably not)      
+
+            frame_count += 1 
+                                                                                                                               
+    
+    def on_detection(self, result):
+        # If there isn't currently running inspection
+        if not self.currently_running_inspection:
+            self.currently_running_inspection = True
+            self.drone.inspectObject(on_done = self._on_inspection_done)
+
+    def _on_inspection_done(self):
+      self.currently_running_inspection = False 
+
     def stop(self):                                                                                                                                                      
         self.running = False                                                                                                                                           
         if not self.wait(2000):
