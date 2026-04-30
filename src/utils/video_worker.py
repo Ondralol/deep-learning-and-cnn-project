@@ -69,7 +69,7 @@ class VideoWorker(QThread):
 
                 # TODO Call inspection
                 if len(results[0].boxes) > 0:                                                                                                                 
-                    self.on_detection(results[0])
+                    #self.on_detection(results[0])
 
                     # TODO properly track where the target is on the map
                     self.target_found.emit()

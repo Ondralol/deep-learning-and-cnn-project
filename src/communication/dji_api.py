@@ -246,22 +246,25 @@ class Drone:
             (lambda: self.move(DIRECTION.FORWARD, 150, in_thread=False), 7.0),
             (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 90, in_thread=False), 3.0),
             (lambda: self.move(DIRECTION.FORWARD, 150, in_thread=False), 7.0),
+            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 90, in_thread=False), 3.0),
+            (lambda: self.move(DIRECTION.FORWARD, 150, in_thread=False), 7.0),
             (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 135, in_thread=False), 3.0   ),
 
             # Moving in a diagonal around grid  
-            (lambda: self.move(DIRECTION.FORWARD, 200, in_thread=False), 7.0),
+            (lambda: self.move(DIRECTION.FORWARD, 180, in_thread=False), 7.0),
             (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 135, in_thread=False), 3.0),
             (lambda: self.move(DIRECTION.FORWARD, 150, in_thread=False), 7.0    ),
             (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 135, in_thread=False), 3.0),
-            (lambda: self.move(DIRECTION.FORWARD, 200, in_thread=False), 7.0),
+            (lambda: self.move(DIRECTION.FORWARD, 180, in_thread=False), 7.0),
             (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 180, in_thread=False), 4.0),
-            (lambda: self.move(DIRECTION.FORWARD, 100, in_thread=False), 7.0),
+            (lambda: self.move(DIRECTION.FORWARD, 90, in_thread=False), 7.0),
+            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 135, in_thread=False), 4.0),
         ]
 
     def startSequence(self):
         """Fly predefined perimeter path."""
         def _run_sequence():
-            for step, timeout in self._build_sequence():
+            for step, timeout in self._routineInspection():
                 step()
                 time.sleep(timeout)
         self._run(_run_sequence)
