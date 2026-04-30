@@ -235,28 +235,27 @@ class Drone:
     def _routineInspection(self):
             return [
             # Moving to top left corner
-            lambda: self.drone.rotate_counter_clockwise(45),
-            lambda: self.drone.move("forward", 100),
-            lambda: self.drone.rotate_clockwise(135),
+            (lambda: self.rotate(ROTATION_DIRECTION.COUNTERCLOCKWISE, 45, in_thread=False), 2.0),
+            (lambda: self.move(DIRECTION.FORWARD, 100, in_thread=False), 7.0),
+            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 135, in_thread=False), 3.0),
 
             # Moving in a square around grid  
-            lambda: self.drone.move("forward", 150),
-            lambda: self.drone.rotate_clockwise(90),
-            lambda: self.drone.move("forward", 150),
-            lambda: self.drone.rotate_clockwise(90),
-            lambda: self.drone.move("forward", 150),
-            lambda: self.drone.rotate_clockwise(90),
-            lambda: self.drone.move("forward", 150),
-            lambda: self.drone.rotate_clockwise(135),
+
+            (lambda: self.move(DIRECTION.FORWARD, 150, in_thread=False), 7.0),
+            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 90, in_thread=False), 3.0),
+            (lambda: self.move(DIRECTION.FORWARD, 150, in_thread=False), 7.0),
+            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 90, in_thread=False), 3.0),
+            (lambda: self.move(DIRECTION.FORWARD, 150, in_thread=False), 7.0),
+            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 135, in_thread=False), 3.0   ),
 
             # Moving in a diagonal around grid  
-            lambda: self.drone.move("forward", 200),
-            lambda: self.drone.rotate_clockwise(135),
-            lambda: self.drone.move("forward", 150),
-            lambda: self.drone.rotate_clockwise(135),
-            lambda: self.drone.move("forward", 200),
-            lambda: self.drone.rotate_clockwise(180),
-            lambda: self.drone.move("forward", 100),
+            (lambda: self.move(DIRECTION.FORWARD, 200, in_thread=False), 7.0),
+            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 135, in_thread=False), 3.0),
+            (lambda: self.move(DIRECTION.FORWARD, 150, in_thread=False), 7.0    ),
+            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 135, in_thread=False), 3.0),
+            (lambda: self.move(DIRECTION.FORWARD, 200, in_thread=False), 7.0),
+            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 180, in_thread=False), 4.0),
+            (lambda: self.move(DIRECTION.FORWARD, 100, in_thread=False), 7.0),
         ]
 
     def startSequence(self):
