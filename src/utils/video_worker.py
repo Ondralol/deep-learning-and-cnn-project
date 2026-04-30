@@ -15,7 +15,7 @@ MODEL_PATH_PREFIX = "models/"
 INFERENCE_EVERY_N = 1 # Only run inference every nth frame
 CONFIRM_INFERENCE_M = 3 # Only confirm inference after n consetutive inferences 
 BOX_EXPIRE_FRAMES = 3 # Old boxes expire after this number of frames
-CONFIDENCE_RATE = 0.45
+CONFIDENCE_RATE = 0.65
 
 class VideoWorker(QThread):                                                                                                                                            
     frame_ready = Signal(np.ndarray)
@@ -68,8 +68,9 @@ class VideoWorker(QThread):
                 # TODO Consecutive detection here
 
                 # TODO Call inspection
-                if len(results[0].boxes) > 0:                                                                                                                 
-                    self.on_detection(results[0])
+                if len(results[0].boxes) > 0: 
+                    # Automatic inspection
+                    # self.on_detection(results[0])
 
                     # TODO properly track where the target is on the map
                     self.target_found.emit()
