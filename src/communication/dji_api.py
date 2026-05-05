@@ -2,7 +2,7 @@ import math
 from djitellopy import tello, Tello
 from enum import Enum, IntEnum, StrEnum
 import threading
-
+import time
 from utils.position import Position
 
 class DIRECTION(StrEnum):
@@ -25,6 +25,7 @@ class SPEED(IntEnum):
 
 TIMEOUT = 5.0
 
+RC_SPEED_TO_CMS = 1.0 # We need to calibrate this
 
 class Drone:
     def __init__(self):
@@ -95,6 +96,48 @@ class Drone:
     def enableMissionPads(self):
         self._run(self.drone.enable_mission_pads)
 
+    def moveSmall(self, dir: DIRECTION, x_cm: int, speed: SPEED, in_thread: bool = True):
+        """Uses rc control to move precisely (cm accuracy)."""
+
+        estimated_cms = speed * RC_SPEED_TO_CMS
+        duration = x_cm / estimated_cms
+
+        lr, fb, ud = 0, 0, 0
+        if   dir is DIRECTION.FORWARD: fb =  speed
+        elif dir is DIRECTION.BACK:    fb = -speed
+        elif dir is DIRECTION.LEFT:    lr = -speed
+        elif dir is DIRECTION.RIGHT:   lr =  speed
+        elif dir is DIRECTION.UP:      ud =  speed
+        elif dir is DIRECTION.DOWN:    ud = -speed
+
+        def _go():
+            self.drone.send_rc_control(lr, fb, ud, 0)
+            time.sleep(duration)
+            self.drone.send_rc_control(0, 0, 0, 0)
+
+        if in_thread:
+            self._run(_go)
+        else:
+            _go()
+
+        # Dead reckoning position update
+        a = math.radians(self.position.angle)
+        if dir is DIRECTION.FORWARD:
+            self.position.x += x_cm * math.cos(a)
+            self.position.y += x_cm * math.sin(a)
+        elif dir is DIRECTION.BACK:
+            self.position.x -= x_cm * math.cos(a)
+            self.position.y -= x_cm * math.sin(a)
+        elif dir is DIRECTION.LEFT:
+            self.position.x += x_cm * math.sin(a)
+            self.position.y -= x_cm * math.cos(a)
+        elif dir is DIRECTION.RIGHT:
+            self.position.x -= x_cm * math.sin(a)
+            self.position.y += x_cm * math.cos(a)
+        elif dir is DIRECTION.UP:
+            self.position.z += x_cm
+        elif dir is DIRECTION.DOWN:
+            self.position.z -= x_cm
 
     def move(self, dir: DIRECTION, x: int, in_thread = True):
         """Fly x cm in direction dir."""

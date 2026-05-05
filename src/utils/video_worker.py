@@ -1,4 +1,4 @@
-from PySide6.QtCore import QThread, Signal                                                                                                                                                                                                                                                                          
+from PySide6.QtCore import QThread, Signal
 from enum import StrEnum
 import numpy as np
 
@@ -14,8 +14,8 @@ MODEL_PATH_PREFIX = "models/"
 
 INFERENCE_EVERY_N = 1 # Only run inference every nth frame
 CONFIRM_INFERENCE_M = 3 # Only confirm inference after n consetutive inferences 
-BOX_EXPIRE_FRAMES = 3 # Old boxes expire after this number of frames
-CONFIDENCE_RATE = 0.65
+BOX_EXPIRE_FRAMES = 4 # Old boxes expire after this number of frames
+CONFIDENCE_RATE = 0.40
 
 class VideoWorker(QThread):                                                                                                                                            
     frame_ready = Signal(np.ndarray)
@@ -61,7 +61,8 @@ class VideoWorker(QThread):
                 continue
 
             if frame_count % INFERENCE_EVERY_N == 0:
-                results = self.model(frame, verbose=False, conf=CONFIDENCE_RATE)                                                                                                                   
+                results = self.model(frame, verbose=False, conf=CONFIDENCE_RATE,
+                                     classes=list(self.model.names.keys()))
                 last_boxes = results[0]
                 last_inference_frame = frame_count
 
@@ -78,7 +79,9 @@ class VideoWorker(QThread):
             if last_boxes is not None and (frame_count - last_inference_frame) < BOX_EXPIRE_FRAMES:
                 try:
                     display_frame = last_boxes.plot(img=frame.copy())
-                except:
+                except Exception as e:
+                    print(f"plot() failed: {type(e).__name__}: {e}")
+                    import traceback; traceback.print_exc()
                     display_frame = frame
             else:
                 display_frame = frame
