@@ -69,14 +69,9 @@ class VideoWorker(QThread):
                 # TODO Consecutive detection here
 
                 # TODO Call inspection
-<<<<<<< HEAD
-                if len(results[0].boxes) > 0:                                                                                                                 
-                    #self.on_detection(results[0])
-=======
                 if len(results[0].boxes) > 0: 
                     # Automatic inspection
                     # self.on_detection(results[0])
->>>>>>> f421d2525a9a275ece909d185a0e6663aaac23eb
 
                     # TODO properly track where the target is on the map
                     self.target_found.emit()

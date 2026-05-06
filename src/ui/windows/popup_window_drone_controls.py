@@ -156,8 +156,10 @@ class PopupWindowDroneControls(QDialog):
     def _buildInspect(self):
         horizontalLayout = QHBoxLayout()
         self.buttonCircle = GenericButton(self, "Inspect")
-        self.buttonCircle.clicked.connect(lambda: self.drone.inspectObject())
+        self.dropdownInspect = Dropdown(self, "Speed", SPEED)
+        self.buttonCircle.clicked.connect(lambda: self.drone.inspectObject(self.dropdownInspect.getCurrentEnum()))
         horizontalLayout.addWidget(self.buttonCircle)
+        horizontalLayout.addWidget(self.dropdownInspect)
 
         return horizontalLayout
 
