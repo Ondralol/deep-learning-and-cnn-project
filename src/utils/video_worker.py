@@ -1,6 +1,7 @@
 from PySide6.QtCore import QThread, Signal
 from enum import StrEnum
 import numpy as np
+from utils.position import Position
 
 
 class MODEL_TYPE(StrEnum):
@@ -20,7 +21,7 @@ CONFIDENCE_RATE = 0.40
 class VideoWorker(QThread):                                                                                                                                            
     frame_ready = Signal(np.ndarray)
     
-    target_found = Signal() # TODO improve target localization, more granual steps
+    target_found = Signal(object)
                                                                                                                                                                         
     def __init__(self, drone, model_type: MODEL_TYPE):
         super().__init__()                                                                                                                                               
@@ -38,6 +39,31 @@ class VideoWorker(QThread):
         print(path)
         self.model = YOLO(path)
         self.model_loaded = True
+
+    def _estimate_target_position(self, result, frame_shape):
+        boxes = result.boxes
+        if boxes is None or len(boxes) == 0:
+            return None
+
+        best_idx = int(boxes.conf.argmax().item())
+        x1, _, x2, _ = boxes.xyxy[best_idx].tolist()
+        frame_width = frame_shape[1]
+        if frame_width <= 0:
+            print(f"Invalid frame width: {frame_width}")
+            return None
+
+        center_x = (x1 + x2) * 0.5
+        normalized_offset = (center_x - (frame_width * 0.5)) / frame_width
+        horizontal_fov_deg = 82.6
+        bearing_offset_deg = normalized_offset * horizontal_fov_deg
+
+        drone_position = self.drone.position
+        return Position(
+            drone_position.x,
+            drone_position.y,
+            drone_position.z,
+            drone_position.angle + bearing_offset_deg,
+        )
 
     def run(self):
         """Read frame and let yolo process it."""
@@ -66,15 +92,18 @@ class VideoWorker(QThread):
                 last_boxes = results[0]
                 last_inference_frame = frame_count
 
-                # TODO Consecutive detection here
+                if len(results[0].boxes) > 0:
+                    consecutive_count += 1
+                else:
+                    consecutive_count = 0
 
                 # TODO Call inspection
-                if len(results[0].boxes) > 0: 
+                if consecutive_count >= CONFIRM_INFERENCE_M:
                     # Automatic inspection
                     # self.on_detection(results[0])
-
-                    # TODO properly track where the target is on the map
-                    self.target_found.emit()
+                    target_position = self._estimate_target_position(results[0], frame.shape)
+                    if target_position is not None:
+                        self.target_found.emit(target_position)
 
             if last_boxes is not None and (frame_count - last_inference_frame) < BOX_EXPIRE_FRAMES:
                 try:

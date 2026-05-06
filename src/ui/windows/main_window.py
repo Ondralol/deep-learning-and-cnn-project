@@ -39,7 +39,13 @@ class MainWindow(QMainWindow):
         mainVerticalLayout = QVBoxLayout()
 
         # Add status bar
-        self.statusBar = StatusBarWidget(self, self.drone, self.startVideo)
+        self.statusBar = StatusBarWidget(
+            self,
+            self.drone,
+            self.startVideo,
+            startRecordingCallback=self.startRecording,
+            stopRecordingCallback=self.stopRecording,
+        )
         mainVerticalLayout.addWidget(self.statusBar)
 
         # Create horizontal layout
@@ -102,8 +108,16 @@ class MainWindow(QMainWindow):
       self.drone.startStream()
       self.video_worker = VideoWorker(self.drone, MODEL_TYPE.RT_DETR_LARGE)
       self.video_worker.frame_ready.connect(self.live_feed.updateFrame)
-      self.video_worker.target_found.connect(lambda: self.map.update_targets([self.drone.position]))
+      self.video_worker.target_found.connect(lambda target: self.map.update_targets([target]))
       self.video_worker.start()
+
+    def startRecording(self):
+        recording_path = self.live_feed.startRecording()
+        print(f"Recording started: {recording_path}")
+
+    def stopRecording(self):
+        recording_path = self.live_feed.stopRecording()
+        print(f"Recording saved: {recording_path}")
 
     def closeEvent(self, event):
         #  Stop recording and stop the thread

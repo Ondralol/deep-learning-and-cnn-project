@@ -185,7 +185,11 @@ class Drone:
         else:
             self.drone.go_xyz_speed_mid(x, y, z, speed, pad)
 
-        # Update postion TODO
+        # Update postion
+        self.position.x = x
+        self.position.y = y
+        self.position.z = z
+        
 
 
     def rotate(self, dir: ROTATION_DIRECTION, angle_deg: int, in_thread = True):

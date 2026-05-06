@@ -50,9 +50,11 @@ BUTTON_HEIGHT = 25
 
 class RecordButton(QPushButton):
     """Starts/Stops drone video recording"""
-    def __init__(self, parent):
+    def __init__(self, parent, startRecordingCallback=None, stopRecordingCallback=None):
         super().__init__(parent)
         self.isRecording = False
+        self.startRecordingCallback = startRecordingCallback
+        self.stopRecordingCallback = stopRecordingCallback
 
         self.setText("Start Recording")
         self.setMinimumHeight(25)
@@ -80,11 +82,13 @@ class RecordButton(QPushButton):
         if not self.isRecording:
             self.setText("Starting the recording")
             self.setStyleSheet(STYLE_SHEET_RECORD_BUTTON_RECORDING)
-            # TODO Start recording
-        elif self.isRecording:
+            if self.startRecordingCallback:
+                self.startRecordingCallback()
+        else:
             self.setText("Saving the recording")
             self.setStyleSheet(STYLE_SHEET_RECORD_BUTTON_NOT_RECORDING)
-            # TODO Stop recording
+            if self.stopRecordingCallback:
+                self.stopRecordingCallback()
 
         # Change state
         self.isRecording = not self.isRecording
