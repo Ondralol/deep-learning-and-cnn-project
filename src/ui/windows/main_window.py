@@ -109,6 +109,7 @@ class MainWindow(QMainWindow):
       self.video_worker = VideoWorker(self.drone, MODEL_TYPE.RT_DETR_LARGE)
       self.video_worker.frame_ready.connect(self.live_feed.updateFrame)
       self.video_worker.target_found.connect(lambda label, pos: self.map.update_targets([pos]))
+      self.video_worker.target_found.connect(lambda label, pos: self.object_log.addEntry(f"Found {label} at coords: ({pos[0]}, {pos[1]}"))
       self.video_worker.start()
 
     def startRecording(self):

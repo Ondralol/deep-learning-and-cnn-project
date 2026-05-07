@@ -91,6 +91,7 @@ class StatusBarWidget(QFrame):
         
         self.setMaximumHeight(MAIN_STATUS_BAR_WIDGET_HEIGHT)
 
+
     # Default size
     def sizeHint(self) -> QSize:
         return QSize(MAIN_STATUS_BAR_WIDGET_WIDTH, MAIN_STATUS_BAR_WIDGET_HEIGHT)

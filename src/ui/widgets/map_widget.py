@@ -133,7 +133,6 @@ class MapWidget(QWidget):
     def update_position(self, position: Position):
         self.canvas.update_position(position)
 
-    def update_targets(self, new_targets):
-        for xy in new_targets:
-            self.canvas.targets.append(xy)
+    def update_targets(self, new_target):
+        self.canvas.targets.append(new_target)
         self.canvas.update()

@@ -2,6 +2,8 @@ from PySide6.QtWidgets import QLabel, QListWidget, QVBoxLayout, QWidget
 
 from ui.elements.title import Title
 
+from datetime import datetime
+
 class ObjectLogWidget(QWidget):
     """Scrollable log of detected objects with timestamps."""
 
@@ -17,5 +19,6 @@ class ObjectLogWidget(QWidget):
         self.log = QListWidget()
         layout.addWidget(self.log)
 
-    def addEntry(self, label: str, timestamp: str):
-        self.log.addItem(f"[{timestamp}] {label}")
+    def addEntry(self, message: str):
+        timestamp = datetime.now().strftime("%H_%S_%f")[:-3]
+        self.log.addItem(f"[{timestamp}] {message}")
