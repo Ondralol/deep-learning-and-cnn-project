@@ -110,9 +110,15 @@ class Drone:
         elif dir is DIRECTION.UP:      ud =  speed
         elif dir is DIRECTION.DOWN:    ud = -speed
 
+        RC_INTERVAL = 0.05  # 20 Hz keep alive
+        # The pc needs to send the rc signals constantly
+
         def _go():
-            self.drone.send_rc_control(lr, fb, ud, 0)
-            time.sleep(duration)
+            elapsed = 0.0
+            while elapsed < duration:
+                self.drone.send_rc_control(lr, fb, ud, 0)
+                time.sleep(RC_INTERVAL)
+                elapsed += RC_INTERVAL
             self.drone.send_rc_control(0, 0, 0, 0)
 
         if in_thread:
@@ -210,32 +216,49 @@ class Drone:
             self.position.angle -= angle_deg
 
 
+    def _expand_move(self, dir: DIRECTION, total_cm: int, speed: SPEED, step_cm: int = 10, pause: float = 0.5):
+        # Creates small steps
+        steps = []
+        remaining = total_cm
+        while remaining > 0:
+            chunk = min(step_cm, remaining)
+            steps.append((lambda d=dir, c=chunk: self.moveSmall(d, c, speed, in_thread=False), pause))
+            remaining -= chunk
+        return steps
+
+    def _expand_rotate(self, dir: ROTATION_DIRECTION, total_deg: int, step_deg: int = 5, pause: float = 0.5):
+        # Creates small steps
+        steps = []
+        remaining = total_deg
+        while remaining > 0:
+            chunk = min(step_deg, remaining)
+            steps.append((lambda d=dir, c=chunk: self.rotate(d, c, in_thread=False), pause))
+            remaining -= chunk
+        return steps
+
     def _buildInspectSequence(self, speed: SPEED):
-        return [
-            # Moving to left side
-            (lambda: self.rotate(ROTATION_DIRECTION.COUNTERCLOCKWISE, 45, in_thread=False), 2.0),
-            (lambda: self.moveSmall(DIRECTION.FORWARD, 25, speed,  in_thread=False), 3.0),
-            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 90, in_thread=False), 3.0),
-            (lambda: self.moveSmall(DIRECTION.LEFT, 50, speed, in_thread=False), 5.0),
-
-            # Go back to the starting point
-            (lambda: self.moveSmall(DIRECTION.RIGHT, 50, speed, in_thread=False), 5.0),
-            (lambda: self.rotate(ROTATION_DIRECTION.COUNTERCLOCKWISE, 90, in_thread=False), 3.0),
-            (lambda: self.moveSmall(DIRECTION.BACK, 20, speed, in_thread=False), 3.0),
-            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 45, in_thread=False), 2.0),
-
-            # Moving to right side
-            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 45,  in_thread=False), 2.0),
-            (lambda: self.moveSmall(DIRECTION.FORWARD, 25, speed,in_thread=False), 3.0),
-            (lambda: self.rotate(ROTATION_DIRECTION.COUNTERCLOCKWISE, 90, in_thread=False), 3.0),
-            (lambda: self.moveSmall(DIRECTION.RIGHT, 50, speed, in_thread=False), 5.0),
-    
-            # Go back to the starting point
-            (lambda: self.moveSmall(DIRECTION.LEFT, 50, speed, in_thread=False), 5.0),
-            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 90, in_thread=False), 3.0),
-            (lambda: self.moveSmall(DIRECTION.BACK, 20, speed, in_thread=False), 3.0),
-            (lambda: self.rotate(ROTATION_DIRECTION.COUNTERCLOCKWISE, 45, in_thread=False), 2.0),
-        ]
+        seq = []
+        # Moving to left side
+        seq += self._expand_rotate(ROTATION_DIRECTION.COUNTERCLOCKWISE, 45)
+        seq += self._expand_move(DIRECTION.FORWARD, 25, speed)
+        seq += self._expand_rotate(ROTATION_DIRECTION.CLOCKWISE, 90)
+        seq += self._expand_move(DIRECTION.LEFT, 50, speed)
+        # Go back to the starting point
+        seq += self._expand_move(DIRECTION.RIGHT, 50, speed)
+        seq += self._expand_rotate(ROTATION_DIRECTION.COUNTERCLOCKWISE, 90)
+        seq += self._expand_move(DIRECTION.BACK, 20, speed)
+        seq += self._expand_rotate(ROTATION_DIRECTION.CLOCKWISE, 45)
+        # Moving to right side
+        seq += self._expand_rotate(ROTATION_DIRECTION.CLOCKWISE, 45)
+        seq += self._expand_move(DIRECTION.FORWARD, 25, speed)
+        seq += self._expand_rotate(ROTATION_DIRECTION.COUNTERCLOCKWISE, 90)
+        seq += self._expand_move(DIRECTION.RIGHT, 50, speed)
+        # Go back to the starting point
+        seq += self._expand_move(DIRECTION.LEFT, 50, speed)
+        seq += self._expand_rotate(ROTATION_DIRECTION.CLOCKWISE, 90)
+        seq += self._expand_move(DIRECTION.BACK, 20, speed)
+        seq += self._expand_rotate(ROTATION_DIRECTION.COUNTERCLOCKWISE, 45)
+        return seq
     
 
 
@@ -255,66 +278,31 @@ class Drone:
 
 
     def _build_sequence(self):
-        # Drone starts in center facing forward
-        return [
-            # Go to front-left corner
-            (lambda: self.moveSmall(DIRECTION.LEFT, 40, SPEED.SLOW, in_thread=False), 5.0),
-            (lambda: self.moveSmall(DIRECTION.FORWARD, 40, SPEED.SLOW, in_thread=False), 5.0),
-
-            # Turn right, go to front-right corner
-            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 90, in_thread=False), 3.0),
-            (lambda: self.moveSmall(DIRECTION.FORWARD, 80, SPEED.SLOW, in_thread=False), 7.0),
-
-            # Turn right, go to back-right corner
-            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 90, in_thread=False), 3.0),
-            (lambda: self.moveSmall(DIRECTION.FORWARD, 80, SPEED.SLOW, in_thread=False), 7.0),
-
-            # Turn right, go to back-left corner
-            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 90, in_thread=False), 3.0),
-            (lambda: self.moveSmall(DIRECTION.FORWARD, 80, SPEED.SLOW, in_thread=False), 7.0),
-
-            # Turn right, go to front-left corner
-            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 90, in_thread=False), 3.0),
-            (lambda: self.moveSmall(DIRECTION.FORWARD, 80, SPEED.SLOW, in_thread=False), 7.0),
-
-            # Return to center
-            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 90, in_thread=False), 3.0),
-            (lambda: self.moveSmall(DIRECTION.FORWARD, 40, SPEED.SLOW, in_thread=False), 5.0),
-            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 90, in_thread=False), 3.0),
-            (lambda: self.moveSmall(DIRECTION.FORWARD, 40, SPEED.SLOW, in_thread=False), 5.0),
-
-            # Rotate back
-            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 180, in_thread=False), 4.0),
-        ]
+        seq = []
+        # Moving to top left corner
+        seq += self._expand_rotate(ROTATION_DIRECTION.COUNTERCLOCKWISE, 45)
+        seq += self._expand_move(DIRECTION.FORWARD, 100, SPEED.SLOW)
+        seq += self._expand_rotate(ROTATION_DIRECTION.CLOCKWISE, 135)
+        # Moving in a square around grid
+        seq += self._expand_move(DIRECTION.FORWARD, 150, SPEED.SLOW)
+        seq += self._expand_rotate(ROTATION_DIRECTION.CLOCKWISE, 90)
+        seq += self._expand_move(DIRECTION.FORWARD, 150, SPEED.SLOW)
+        seq += self._expand_rotate(ROTATION_DIRECTION.CLOCKWISE, 90)
+        seq += self._expand_move(DIRECTION.FORWARD, 150, SPEED.SLOW)
+        seq += self._expand_rotate(ROTATION_DIRECTION.CLOCKWISE, 90)
+        seq += self._expand_move(DIRECTION.FORWARD, 150, SPEED.SLOW)
+        seq += self._expand_rotate(ROTATION_DIRECTION.CLOCKWISE, 135)
+        # Moving in a diagonal around grid
+        seq += self._expand_move(DIRECTION.FORWARD, 180, SPEED.SLOW)
+        seq += self._expand_rotate(ROTATION_DIRECTION.CLOCKWISE, 135)
+        seq += self._expand_move(DIRECTION.FORWARD, 150, SPEED.SLOW)
+        seq += self._expand_rotate(ROTATION_DIRECTION.CLOCKWISE, 135)
+        seq += self._expand_move(DIRECTION.FORWARD, 180, SPEED.SLOW)
+        seq += self._expand_rotate(ROTATION_DIRECTION.CLOCKWISE, 180)
+        seq += self._expand_move(DIRECTION.FORWARD, 90, SPEED.SLOW)
+        seq += self._expand_rotate(ROTATION_DIRECTION.CLOCKWISE, 135)
+        return seq
     
-    def _routineInspection(self):
-            return [
-            # Moving to top left corner
-            (lambda: self.rotate(ROTATION_DIRECTION.COUNTERCLOCKWISE, 45, in_thread=False), 2.0),
-            (lambda: self.moveSmall(DIRECTION.FORWARD, 100, SPEED.SLOW, in_thread=False), 7.0),
-            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 135, in_thread=False), 3.0),
-
-            # Moving in a square around grid  
-
-            (lambda: self.moveSmall(DIRECTION.FORWARD, 150, SPEED.SLOW, in_thread=False), 7.0),
-            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 90, in_thread=False), 3.0),
-            (lambda: self.moveSmall(DIRECTION.FORWARD, 150, SPEED.SLOW, in_thread=False), 7.0),
-            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 90, in_thread=False), 3.0),
-            (lambda: self.moveSmall(DIRECTION.FORWARD, 150, SPEED.SLOW, in_thread=False), 7.0),
-            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 90, in_thread=False), 3.0),
-            (lambda: self.moveSmall(DIRECTION.FORWARD, 150, SPEED.SLOW, in_thread=False), 7.0),
-            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 135, in_thread=False), 3.0   ),
-
-            # Moving in a diagonal around grid  
-            (lambda: self.moveSmall(DIRECTION.FORWARD, 180, SPEED.SLOW, in_thread=False), 7.0),
-            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 135, in_thread=False), 3.0),
-            (lambda: self.moveSmall(DIRECTION.FORWARD, 150, SPEED.SLOW, in_thread=False), 7.0    ),
-            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 135, in_thread=False), 3.0),
-            (lambda: self.moveSmall(DIRECTION.FORWARD, 180, SPEED.SLOW, in_thread=False), 7.0),
-            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 180, in_thread=False), 4.0),
-            (lambda: self.moveSmall(DIRECTION.FORWARD, 90, SPEED.SLOW, in_thread=False), 7.0),
-            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 135, in_thread=False), 4.0),
-        ]
 
     def startSequence(self):
         """Fly predefined perimeter path."""
