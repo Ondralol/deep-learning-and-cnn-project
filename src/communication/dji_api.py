@@ -247,6 +247,33 @@ class Drone:
             remaining -= chunk
         return steps
 
+    def _buildAlternativeInspectSequence(self, speed: SPEED):
+        return [
+            # Moving to left side
+            (lambda: self.rotate(ROTATION_DIRECTION.COUNTERCLOCKWISE, 45, in_thread=False), 2.0),
+            (lambda: self.moveSmall(DIRECTION.FORWARD, 25, speed,  in_thread=False), 3.0),
+            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 90, in_thread=False), 3.0),
+            (lambda: self.moveSmall(DIRECTION.LEFT, 50, speed, in_thread=False), 5.0),
+
+            # Go back to the starting point
+            (lambda: self.moveSmall(DIRECTION.RIGHT, 50, speed, in_thread=False), 5.0),
+            (lambda: self.rotate(ROTATION_DIRECTION.COUNTERCLOCKWISE, 90, in_thread=False), 3.0),
+            (lambda: self.moveSmall(DIRECTION.BACK, 20, speed, in_thread=False), 3.0),
+            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 45, in_thread=False), 2.0),
+
+            # Moving to right side
+            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 45,  in_thread=False), 2.0),
+            (lambda: self.moveSmall(DIRECTION.FORWARD, 25, speed,in_thread=False), 3.0),
+            (lambda: self.rotate(ROTATION_DIRECTION.COUNTERCLOCKWISE, 90, in_thread=False), 3.0),
+            (lambda: self.moveSmall(DIRECTION.RIGHT, 50, speed, in_thread=False), 5.0),
+    
+            # Go back to the starting point
+            (lambda: self.moveSmall(DIRECTION.LEFT, 50, speed, in_thread=False), 5.0),
+            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 90, in_thread=False), 3.0),
+            (lambda: self.moveSmall(DIRECTION.BACK, 20, speed, in_thread=False), 3.0),
+            (lambda: self.rotate(ROTATION_DIRECTION.COUNTERCLOCKWISE, 45, in_thread=False), 2.0),
+        ]
+
     def _buildInspectSequence(self, speed: SPEED):
         seq = []
         
@@ -280,7 +307,7 @@ class Drone:
         """Inspect an object by sweeping left then right."""
         def _run_sequence():
             self._cancel_event.clear()
-            for step, timeout in self._buildInspectSequence(speed):
+            for step, timeout in self._buildAlternativeInspectSequence(speed):
                 if self._cancel_event.is_set():
                     break
                 step()
