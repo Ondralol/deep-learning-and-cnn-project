@@ -247,31 +247,64 @@ class Drone:
             remaining -= chunk
         return steps
 
-    def _buildAlternativeInspectSequence(self, speed: SPEED):
+    # BUILD A U SHAPE AROUND OBJECT WHILE MANTAINING CAMERA ANGLE IN STAIRCASE MOTION
+    def _buildAlternativeInspectSequence(self, speed: SPEED, DISTANCE_TO_OBJECT: int = 10):
         return [
-            # Moving to left side
-            (lambda: self.rotate(ROTATION_DIRECTION.COUNTERCLOCKWISE, 45, in_thread=False), 2.0),
-            (lambda: self.moveSmall(DIRECTION.FORWARD, 25, speed,  in_thread=False), 3.0),
-            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 90, in_thread=False), 3.0),
-            (lambda: self.moveSmall(DIRECTION.LEFT, 50, speed, in_thread=False), 5.0),
+            # MOVING TO LEFT U SIDE IN 3 STAIRCASE MOTION forming a final 90 degree angle
+            (lambda: self.moveSmall(DIRECTION.LEFT, DISTANCE_TO_OBJECT, speed,  in_thread=False), 3.0),
+            (lambda: self.moveSmall(DIRECTION.FORWARD, DISTANCE_TO_OBJECT, speed,  in_thread=False), 3.0),
+            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 30, in_thread=False), 2.0),
 
-            # Go back to the starting point
-            (lambda: self.moveSmall(DIRECTION.RIGHT, 50, speed, in_thread=False), 5.0),
-            (lambda: self.rotate(ROTATION_DIRECTION.COUNTERCLOCKWISE, 90, in_thread=False), 3.0),
-            (lambda: self.moveSmall(DIRECTION.BACK, 20, speed, in_thread=False), 3.0),
-            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 45, in_thread=False), 2.0),
+            (lambda: self.moveSmall(DIRECTION.LEFT, DISTANCE_TO_OBJECT, speed,  in_thread=False), 3.0),
+            (lambda: self.moveSmall(DIRECTION.FORWARD, DISTANCE_TO_OBJECT, speed,  in_thread=False), 3.0),
+            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 30, in_thread=False), 2.0),
 
-            # Moving to right side
-            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 45,  in_thread=False), 2.0),
-            (lambda: self.moveSmall(DIRECTION.FORWARD, 25, speed,in_thread=False), 3.0),
-            (lambda: self.rotate(ROTATION_DIRECTION.COUNTERCLOCKWISE, 90, in_thread=False), 3.0),
-            (lambda: self.moveSmall(DIRECTION.RIGHT, 50, speed, in_thread=False), 5.0),
-    
-            # Go back to the starting point
-            (lambda: self.moveSmall(DIRECTION.LEFT, 50, speed, in_thread=False), 5.0),
-            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 90, in_thread=False), 3.0),
-            (lambda: self.moveSmall(DIRECTION.BACK, 20, speed, in_thread=False), 3.0),
-            (lambda: self.rotate(ROTATION_DIRECTION.COUNTERCLOCKWISE, 45, in_thread=False), 2.0),
+            (lambda: self.moveSmall(DIRECTION.LEFT, DISTANCE_TO_OBJECT, speed,  in_thread=False), 3.0),
+            (lambda: self.moveSmall(DIRECTION.FORWARD, DISTANCE_TO_OBJECT, speed,  in_thread=False), 3.0),
+            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 30, in_thread=False), 2.0),
+
+            # COMING BACK
+
+            (lambda: self.moveSmall(DIRECTION.RIGHT, DISTANCE_TO_OBJECT, speed,  in_thread=False), 3.0),
+            (lambda: self.moveSmall(DIRECTION.BACK, DISTANCE_TO_OBJECT, speed,  in_thread=False), 3.0),
+            (lambda: self.rotate(ROTATION_DIRECTION.COUNTERCLOCKWISE, 30, in_thread=False), 2.0),
+
+            (lambda: self.moveSmall(DIRECTION.RIGHT, DISTANCE_TO_OBJECT, speed,  in_thread=False), 3.0),
+            (lambda: self.moveSmall(DIRECTION.BACK, DISTANCE_TO_OBJECT, speed,  in_thread=False), 3.0),
+            (lambda: self.rotate(ROTATION_DIRECTION.COUNTERCLOCKWISE, 30, in_thread=False), 2.0),
+
+
+            (lambda: self.moveSmall(DIRECTION.RIGHT, DISTANCE_TO_OBJECT, speed,  in_thread=False), 3.0),
+            (lambda: self.moveSmall(DIRECTION.BACK, DISTANCE_TO_OBJECT, speed,  in_thread=False), 3.0),
+            (lambda: self.rotate(ROTATION_DIRECTION.COUNTERCLOCKWISE, 30, in_thread=False), 2.0),
+
+            # MOVING TO RIGHT U SIDE IN 3 STAIRCASE MOTION forming a final 90 degree angle
+            (lambda: self.moveSmall(DIRECTION.RIGHT, DISTANCE_TO_OBJECT, speed,  in_thread=False), 3.0),
+            (lambda: self.moveSmall(DIRECTION.FORWARD, DISTANCE_TO_OBJECT, speed,  in_thread=False), 3.0),
+            (lambda: self.rotate(ROTATION_DIRECTION.COUNTERCLOCKWISE, 30, in_thread=False), 2.0),
+
+            (lambda: self.moveSmall(DIRECTION.RIGHT, DISTANCE_TO_OBJECT, speed,  in_thread=False), 3.0),
+            (lambda: self.moveSmall(DIRECTION.FORWARD, DISTANCE_TO_OBJECT, speed,  in_thread=False), 3.0),
+            (lambda: self.rotate(ROTATION_DIRECTION.COUNTERCLOCKWISE, 30, in_thread=False), 2.0),
+
+            (lambda: self.moveSmall(DIRECTION.RIGHT, DISTANCE_TO_OBJECT, speed,  in_thread=False), 3.0),
+            (lambda: self.moveSmall(DIRECTION.FORWARD, DISTANCE_TO_OBJECT, speed,  in_thread=False), 3.0),
+            (lambda: self.rotate(ROTATION_DIRECTION.COUNTERCLOCKWISE, 30, in_thread=False), 2.0),
+
+            # COMING BACK
+
+            (lambda: self.moveSmall(DIRECTION.LEFT, DISTANCE_TO_OBJECT, speed,  in_thread=False), 3.0),
+            (lambda: self.moveSmall(DIRECTION.BACK, DISTANCE_TO_OBJECT, speed,  in_thread=False), 3.0),
+            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 30, in_thread=False), 2.0),
+
+            (lambda: self.moveSmall(DIRECTION.LEFT, DISTANCE_TO_OBJECT, speed,  in_thread=False), 3.0),
+            (lambda: self.moveSmall(DIRECTION.BACK, DISTANCE_TO_OBJECT, speed,  in_thread=False), 3.0),
+            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 30, in_thread=False), 2.0),
+
+
+            (lambda: self.moveSmall(DIRECTION.LEFT, DISTANCE_TO_OBJECT, speed,  in_thread=False), 3.0),
+            (lambda: self.moveSmall(DIRECTION.BACK, DISTANCE_TO_OBJECT, speed,  in_thread=False), 3.0),
+            (lambda: self.rotate(ROTATION_DIRECTION.CLOCKWISE, 30, in_thread=False), 2.0),
         ]
 
     def _buildInspectSequence(self, speed: SPEED):
