@@ -2,6 +2,11 @@
 
 A Python application using PySide6 for GUI and YOLO for object detection to find and map dangerous object in warehouses
 
+
+# Project structure
+- Application source code can be found in `src/` folder
+- Jupyter notabooks containing training can be found in `/notebooks` folder
+
 # Prerequisites
 
 Make sure you have the following installed:
@@ -53,7 +58,3 @@ Note: If running inside sagemaker, you need to copy `pyproject.toml` first
 sudo ufw allow 8890/udp                                                                                                                           
 sudo ufw allow 11111/udp
 
-
-
-# TODO
-Create button to reset the movement
